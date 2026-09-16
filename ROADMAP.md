@@ -1,98 +1,149 @@
-# CrossPoint Reader Roadmap
+# Paperonii Roadmap
 
-This roadmap describes how CrossPoint is moving through the tighter scope defined in [SCOPE.md](SCOPE.md). It is
-intentionally phased: Phase 0 closed out the commitments already in flight before locking down to the stricter
-"fill gaps the stock firmware leaves" delineator.
+Paperonii is an Xteink X4 Pro-first custom firmware built from the CrossPoint Reader baseline. Its roadmap is intentionally broader than a dedicated reader: reading remains first-class, while games, notes, PDF experiments, utilities, and network applications are valid directions.
 
-Phases are sequential. We do not start the next phase until the prior one is wrapped or explicitly carried over.
+Milestones are ordered by dependency, not by a promise to implement every idea. Work may be explored early, but a milestone is complete only when its exit criteria are met on real X4 Pro hardware.
 
-Status: ✅ done · 🚧 in progress · ❌ shelved
+Status: ✅ done · 🚧 in progress · 🧪 experimental · ⏳ planned · ❌ dropped
 
 ---
 
-## ✅ Phase 0 - Close Out Legacy Scope Items
+## 🚧 Milestone 0 - Paperonii Foundation
 
-**Goal:** Land the work that was already in motion under the prior, broader scope so contributors are not left
-hanging, and so we enter the stricter phases with a clean slate.
+**Goal:** Turn the imported baseline into a reproducible, identifiable, and recoverable Paperonii firmware for the Xteink X4 Pro, then prove the broader application direction with one small feature.
 
-* ✅ **RTL support PRs.** The in-flight right-to-left work was reviewed, iterated, and merged.
-* ✅ **Dictionary PR.** The offline dictionary lookup work was reviewed and merged.
-* ✅ **Bookmarks** feature. First-class navigation markers in EPUBs.
-* ✅ **Transparent sleep screens.**
+### Baseline and identity
 
-Phase 0 is closed. The tighter scope in [SCOPE.md](SCOPE.md) is now fully enforced. "But it was on the old roadmap"
-is not a valid argument for accepting a PR.
+- Confirm the imported CrossPoint baseline and recorded submodule revisions.
+- Rename user-visible firmware identity, build metadata, storage namespaces where safe, and release artifacts to Paperonii.
+- Keep upstream attribution, the original MIT license and copyright notice, and third-party notices intact.
+- Document how selected upstream changes can be reviewed and adapted despite the independent Git history.
+
+### X4 Pro hardware verification
+
+- Produce a clean, reproducible X4 Pro build from documented prerequisites.
+- Verify boot, display initialization, touch input, buttons, SD storage, battery reporting, and sleep/wake.
+- Verify USB mass-storage and firmware flashing/recovery paths.
+- Verify Wi-Fi, existing transfer features, and OTA behavior or explicitly disable any path that is not yet safe for Paperonii.
+- Record test device details and known limitations.
+
+### Release safety
+
+- Add a concise hardware smoke-test checklist.
+- Define versioning and produce a clearly labeled development build.
+- Ensure a failed experiment cannot silently overwrite or masquerade as an official CrossPoint release.
+- Document backup, flash, and recovery steps before publishing the first binary.
+- Do not call the milestone stable until installation and recovery have both been exercised on real hardware.
+
+### Representative feature: Touch Sketch
+
+Add a minimal built-in touch sketch pad that can:
+
+- open and return cleanly without disturbing reader state;
+- draw with touch using an e-ink-aware refresh strategy;
+- clear the canvas;
+- save and reopen one local sketch;
+- handle missing or unwritable storage without crashing.
+
+This feature is deliberately small. It validates application navigation, touch input, partial refresh behavior, persistence, and separation from the reader core. Advanced drawing tools and a full notes system are deferred.
+
+### Exit criteria
+
+Milestone 0 is complete when:
+
+- a clean checkout builds reproducibly for X4 Pro;
+- the hardware checklist passes on at least one real device;
+- flash and recovery instructions have been tested;
+- Paperonii identity is visible without removing upstream attribution;
+- Touch Sketch passes its basic interaction and persistence checks;
+- a development release and known-issues note are published.
 
 ---
 
-## 🚧 Phase 1 - Consolidation, Footprint, and Multi-Device Support
+## ⏳ Milestone 1 - Application Foundation and Polished Reading
 
-**Goal:** Reduce memory and flash usage, clean up the codebase, and land the SDK / HAL generalization work so
-CrossPoint runs cleanly on ESP32-based e-reader hardware beyond Xteink (X3 / X4), including ESP32-S3 class devices.
+**Goal:** Make non-reader features safe to add while preserving a dependable reading experience.
 
 **Focus areas:**
 
-* DRAM and heap fragmentation reduction across the reader core.
-* Flash footprint reduction (dead code, redundant strings, oversized tables).
-* Refactors that tighten the HAL / SDK boundary.
-* ✅ Pluggable per-device SDK layers (display, input, storage, battery) and per-device build configuration without
-  forking the reader core. CrossPoint now builds for and runs on multiple device targets beyond the
-  Xteink X3 / X4, including ESP32-S3 class hardware (X4 Pro, PaperMono, Seeed Sticky).
-* Adding support for a new device is done in the [FreeInk SDK](https://freeink.org) first (display, input,
-  storage, battery drivers), followed by a commit to this repo adding board support (build environment and
-  device configuration).
-* E-ink driver refinement (ghosting, partial update behavior).
+- Define a lightweight launcher or application registry.
+- Establish application lifecycle rules for entry, exit, memory cleanup, persistence, and error handling.
+- Centralize reusable touch, keyboard, dialog, and refresh primitives.
+- Add regression checks for opening, reading, suspending, and resuming books.
+- Fix X4 Pro-specific reading, touch, USB, and power-management issues found during Milestone 0.
+- Decide whether experimental applications are build-time options, runtime flags, or a separate release channel.
 
-**Closed during this phase:** new themes built into firmware, new external network connectors (sync engines, cloud
-storage, remote file access).
+**Not required for completion:** a large catalog of applications.
 
 ---
 
-## Phase 2 - Languages, Fonts, and Themes
+## ⏳ Milestone 2 - Notes, Tools, and Small Games
 
-**Goal:** With the codebase smaller and portable, make reading great in every language: multi-language support,
-better font support with custom fonts, UI translations, and themes loaded from the SD card instead of consuming
-flash.
+**Goal:** Deliver a useful first collection of local, e-ink-friendly applications.
 
-**Focus areas:**
+Candidate work:
 
-* Multi-language reading support (underserved languages, complex script support where realistic on ESP32 hardware).
-  Substantial progress has already landed: RTL reading (Arabic, Hebrew) and CJK via SD card fonts.
-* ✅ Better font support and custom fonts. **Landed early.** SD card fonts with a downloader and font manager,
-  script grouping, and CJK support are shipped (see [docs/sd-card-fonts.md](docs/sd-card-fonts.md)).
-* ✅ UI languages and localization. **Landed early.** The UI ships with 30+ translations, including RTL languages,
-  and continues to receive improvements.
-* Moving themes off-firmware to SD-loaded assets (see SCOPE.md Section 6).
-* **SD-loaded plugins.** Extend the device from the SD card without growing the firmware: plugin packages that add
-  integrations and connectors, running through the web server and a whitelisted job queue instead of compiled-in
-  code. This is how new "talk to a server" functionality gets added without paying the flash and RAM cost in the
-  core firmware, keeping the connector freeze in SCOPE.md intact.
-* **Moving hyphenation files off-firmware.** Hyphenation rules vary per language and the files are large (German
-  alone is ~200KB). Today these eat flash budget that should be available for the reader core. The plan is to build
-  a downloader analogous to the existing font downloader and store the hyphenation files on SD, loading on
-  demand. This unlocks better hyphenation for long-word languages (German, Finnish, Norwegian, etc.) without paying
-  the flash cost up front.
+- On-screen keyboard and reusable text input.
+- Simple notes or checklist application with safe local persistence and export.
+- Expansion of Touch Sketch based on hardware results.
+- Calculator, timer, calendar, or reference utilities.
+- One or more turn-based or low-refresh games.
+- Per-application settings and storage boundaries.
 
-This phase depends on Phase 1 cleanup landing first; otherwise we generalize a moving target.
+Candidates are selected by maintainability and hardware fit; this list is not a commitment to ship all items.
 
 ---
 
-## Out of Roadmap
+## ⏳ Milestone 3 - Documents and PDF Experiments
 
-The following are explicitly *not* on the roadmap. They may live in other CrossPoint forks; they will not be picked
-up here:
+**Goal:** Determine which fixed-layout document workflows are genuinely useful on the X4 Pro.
 
-* Interactive apps (games, calculators, notepads).
-* Writing / authoring tools.
-* Active connectivity features (RSS, news, browsers).
-* PDF rendering as a first-class format.
+Planned investigation:
 
-See [SCOPE.md](SCOPE.md) for the full rationale.
+- Measure feasible PDF parsing/rendering approaches on device.
+- Compare native rendering, host-side preprocessing, and page-to-image pipelines.
+- Prototype page fit, crop, rotation, zoom, pan, and thumbnail navigation.
+- Define supported PDF subsets and failure behavior.
+- Promote PDF support from experimental only if memory use, navigation, and recovery are acceptable.
+
+A constrained viewer is a valid result. Paperonii does not promise desktop-class PDF compatibility.
+
+---
+
+## ⏳ Milestone 4 - Connected Applications
+
+**Goal:** Add user-controlled network experiences without turning background activity into a battery or reliability problem.
+
+Candidate work:
+
+- RSS or feed reader.
+- Weather and small information panels.
+- Remote libraries, downloads, and sync services.
+- Improvements to OPDS, WebDAV, web transfer, and OTA.
+- Scheduling and caching rules for intermittent connectivity.
+- Clear offline states, timeouts, credential handling, and opt-in background behavior.
+
+Network features must disclose when they connect and remain usable or fail cleanly offline.
+
+---
+
+## Ongoing Work
+
+These concerns apply across every milestone:
+
+- EPUB and local reading quality.
+- X4 Pro touch, display refresh, USB, battery, and sleep reliability.
+- Memory, flash, storage, and power measurement.
+- Recovery paths and avoidance of data loss.
+- Tests, diagnostics, documentation, localization, and accessibility.
+- Review and selective adaptation of useful upstream changes with attribution.
 
 ---
 
 ## How This Roadmap Changes
 
-* Phase boundaries are decided by maintainers, not by individual PRs.
-* If a phase needs to be extended or an item carried over, that is documented here with a short note.
-* Proposals for new phases or reordering should go through a Discussion first.
+- Milestones describe direction and exit criteria, not fixed deadlines.
+- Large additions should start with an issue or design note describing hardware costs and validation.
+- Experimental work must be labeled as such until tested on real X4 Pro hardware.
+- Scope changes should update both this file and [SCOPE.md](SCOPE.md).
+- The project's broader direction does not permit removal of upstream license, copyright, or third-party notices.
