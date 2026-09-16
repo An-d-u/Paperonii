@@ -1,100 +1,119 @@
-# Project Vision & Scope: CrossPoint Reader
+# Project Vision & Scope: Paperonii
 
-The goal of CrossPoint Reader is to create an efficient, open-source reading experience for ESP32-based e-reader devices. Xteink hardware (X3, X4) is where the project started and remains a primary target, but CrossPoint is explicitly broadening to support the wider ecosystem of small ESP32 e-ink readers. We believe a dedicated e-reader should do one thing exceptionally well: **facilitate focused reading.**
+Paperonii is an independent custom firmware project for the **Xteink X4 Pro**, initially derived from [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader). It keeps CrossPoint's capable reading foundation while exploring a broader idea: a small, playful, general-purpose e-ink device for reading, tools, games, documents, and connected experiences.
+
+Paperonii is not an official CrossPoint Reader release and does not follow CrossPoint's product scope or release policy.
 
 ## 1. Core Mission
 
-To provide a lightweight, high-performance firmware that maximizes the potential of ESP32-based e-reader hardware, prioritizing legibility, performance, and usability over "swiss-army-knife" functionality.
+Make the Xteink X4 Pro more useful and enjoyable without sacrificing its reliability as an e-reader.
 
-CrossPoint is **not** a kitchen-sink firmware, and it is **not** Xteink-only. We want clean, maintainable code that the community can build on, and that runs across the range of ESP32 e-reader devices (ESP32-C3, ESP32-S3, and adjacent variants). Every accepted change should make that goal easier, not harder. Device-specific code should live behind the HAL / SDK boundary so the reader core stays portable.
+Reading remains a first-class experience, but it is not the sole criterion for accepting features. Paperonii may add applications and workflows that make good use of the X4 Pro's touch screen, ESP32-S3, storage, USB, Wi-Fi, and e-ink display.
 
-## 2. Guiding Principle: Fill Gaps the Stock Firmware Leaves
+## 2. Product Principles
 
-CrossPoint exists to do the things the stock firmware does poorly or not at all. New work is evaluated against that delineator:
+### X4 Pro First
 
-* **Does the stock firmware already do this well?** We should hit that bar or surpass it 
-* **Is another popular CrossPoint fork already solving this well?** If yes, we generally defer to that fork if it's not part of the core reading experience. e.g. stats
-* **Does this directly improve the reading experience or the firmware's long-term maintainability?** If no, it is out of scope.
+Paperonii targets the Xteink X4 Pro. Portability to other devices is welcome only when it does not delay, complicate, or weaken the X4 Pro experience. Generalizing hardware support is not a project goal by itself.
 
-## 3. Current Focus
+### Stable Reader, Broader Device
 
-We are intentionally narrowing scope to consolidate the codebase as we open it up to more ESP32 e-reader devices.
+Existing reading features should remain usable and regressions should be treated seriously. New work does not, however, need to be part of the reading flow. Games, utilities, note-taking, document viewers, and network applications are legitimate project areas.
 
-During this period, the priorities are:
+### E-Ink-Aware by Design
 
-* **Memory footprint:** Reducing DRAM usage and heap fragmentation. The ESP32-C3 is the tightest target and sets the ceiling, but the gains benefit every ESP32 variant we run on. 
-* **Flash footprint:** Trimming binary size to leave room for additional device targets and features. 
-* **Code cleanup:** Refactoring, removing dead code, tightening abstractions, and improving readability. 
-* **Reading experience:** EPUB parsing and rendering, typography, hyphenation, line spacing, font handling, and legibility improvements.
+Features should be designed around slow refresh, ghosting, battery use, limited memory, and intermittent connectivity. A feature is not rejected merely because it is interactive; it should instead choose an appropriate refresh strategy and interaction model.
 
-### Temporarily Closed Areas
+### Modular Growth
 
-PRs in the following areas will be closed until this notice is lifted. Adding these now makes the cleanup and multi-device work materially harder:
+Non-reader features should be separated from the reader core where practical. Shared services such as navigation, input, persistence, networking, and display refresh should have clear boundaries so experimental applications do not destabilize core reading.
 
-* **New themes.** The existing theming surface is frozen. 
-* **New external network connectors.** This includes sync engines, cloud storage clients, remote file access, and any new "talk to a server" feature. Fixes and improvements to the *existing* OPDS support (usability, performance, compatibility with more catalogs) remain in scope and welcome; what is closed is adding entirely new protocols or connectors. We now have our own CrossPoint KOSync server which gives us a way to sync to 3rd party systems like Hardcover at an API level instead of bloating the firmware. If you're interested in helping here, the sync server is also open source.
+### Honest Capability
 
-If you are unsure whether your idea falls into one of these categories, open a Discussion first.
+Paperonii should distinguish between proven support, experimental support, and ideas. Features are documented as supported only after they have been tested on real X4 Pro hardware.
 
-## 4. Scope
+## 3. In Scope
 
-### In-Scope
+### Reading
 
-*Features that directly improve the core reading experience or the firmware's maintainability.*
+- EPUB, TXT, XTC/XTCH, image, typography, font, localization, library, bookmark, dictionary, progress, and rendering improvements.
+- Reader usability and touch interactions.
+- Performance, memory, storage, and battery improvements that benefit reading.
 
-* **EPUB Rendering & Optimization:** Improvements to the rendering engine, CSS/image handling, and parsing performance. 
-* **Typography & Legibility:** Custom font support, hyphenation, line and paragraph spacing, margins. 
-* **E-Ink Driver Refinement:** Reducing full-screen flashes (ghosting management) and improving general rendering. 
-* **Reading UX:** Bookmarks, progress tracking, button mapping, page navigation, and other in-reader interactions. 
-* **Library Management:** Simple, intuitive ways to organize and navigate a local book collection. 
-* **Memory, Flash, and Code Quality:** Refactors and cleanups that reduce resource use or improve maintainability, even without a user-visible feature.
+### Applications and Games
 
-### Out-of-Scope
+- Small e-ink-friendly games.
+- Calculators, clocks, timers, calendars, reference tools, and similar utilities.
+- A reusable application launcher and lifecycle where it provides clear value.
+- Experiments that explore the X4 Pro as more than a dedicated reader.
 
-*Rejected because they compromise the device's stability, maintainability, or core mission.*
+### Notes and Input
 
-* **Interactive Apps:** No notepads, calculators, or games. These belong in other forks and are not part of CrossPoint's focus. 
-* **Writing / Authoring Tools:** No typed notes, journals, or editors. Input hardware and RAM are wrong for this, and other forks already explore this space. 
-* **Active Connectivity:** No RSS readers, news aggregators, or web browsers. Background Wi-Fi drains the battery and complicates the single-core CPU. 
-* **PDF Rendering:** PDFs are fixed-layout documents, so rendering them requires displaying pages as images rather than reflowable text, resulting in constant panning and zooming that makes for a poor reading experience on e-ink. Out of scope on the current hardware class.
+- Typed or touch-driven notes, simple editors, checklists, and sketching.
+- On-screen keyboard and reusable text-input components.
+- Local persistence, export, and recovery appropriate to the hardware.
 
-## 5. Calls to Action
+### Documents
 
-These are the areas where contributor help is most valuable right now. If you want to take one of these on, open a Discussion or issue first so we can coordinate.
+- PDF support, including feasibility experiments and constrained viewers.
+- Image-based and fixed-layout document viewing.
+- Deliberate tradeoffs such as preprocessing, cropping, tiling, zooming, or reduced feature coverage are acceptable when documented.
 
-### Theme System: Move Themes Off-Firmware
+### Connectivity
 
-We want to abstract themes out of the firmware entirely so they no longer consume flash, and instead load from the SD card. This directly supports the current focus on flash footprint and code cleanup.
+- User-initiated network applications such as RSS, weather, downloads, sync, remote libraries, and selected web APIs.
+- Improvements to existing web, OPDS, WebDAV, OTA, and transfer features.
+- Background or periodic networking when battery and failure behavior are explicit and controllable.
 
-* **Status:** [@itsthisjustin](https://github.com/itsthisjustin) plans to take this on eventually but is very open to someone else claiming it sooner. 
-* **Why it matters:** Every built-in theme costs flash that we would rather spend on rendering, fonts, or future device support. SD-loaded themes also let users customize without rebuilding firmware. It also leads to SD font loading for better language support in the UI. 
-* **How to claim:** Comment on the relevant Discussion (or open one) before starting.
+### Platform and Customization
 
-### Identifying Other Stock-Firmware Gaps
+- X4 Pro hardware integration, USB workflows, touch UX, power management, storage, and recovery.
+- Themes, launchers, sleep screens, sounds where supported, and other playful customization.
+- Refactoring, tests, diagnostics, build tooling, and documentation that improve development or release safety.
 
-We want help cataloguing things the stock firmware (and other popular CrossPoint forks) handle poorly or not at all, so future work has a clear target list. Particularly interested in:
+## 4. Constraints and Non-Goals
 
-* **RTL (right-to-left) text support:** Arabic, Hebrew, Persian, and similar scripts. 
-* **Languages with poor stock and fork coverage:** Especially those that need shaping, complex layout, or non-Latin font work that nobody is handling well today. 
-* **Other gaps:** Rendering edge cases, accessibility issues, input quirks, anything stock does badly and existing forks have not fixed.
+Paperonii has a broad feature scope, but not an unlimited engineering budget. The following are constraints rather than permanent category bans:
 
-If you can read or use the device in one of these languages, your feedback (even without code) is genuinely useful. Open a Discussion with concrete examples (screenshots, sample EPUBs, expected vs actual behavior) and we will prioritize from there.
+- **X4 Pro support comes first.** Other boards must not dictate architecture or block releases.
+- **Core reliability matters.** Features that corrupt books, settings, files, or device recovery paths will not ship as stable.
+- **Resource costs must be visible.** Large features should document flash, RAM, storage, refresh, and battery tradeoffs.
+- **Networking must be user-controlled.** Applications should avoid hidden continuous activity and handle offline use cleanly.
+- **PDF support may remain constrained.** Full desktop-class rendering is not promised; useful subsets and preprocessing workflows are acceptable.
+- **No compatibility promise before validation.** Imported CrossPoint behavior is a baseline, not proof that a Paperonii release has been verified on the X4 Pro.
+- **No feature is accepted merely because it is possible.** It still needs a maintainable implementation and a coherent X4 Pro interaction model.
 
-## 6. Funding and Contributor Sustainability
+## 5. Current Priority
 
-CrossPoint uses [Royalty.dev](https://royalty.dev) (yes, a product built by [@itsthisjustin](https://github.com/itsthisjustin)) to fund contributors. There has been some tension in the community around this, so the intent is being clarified here directly.
+The first milestone is **Paperonii Foundation**:
 
-**Why we do this:**
+1. Establish a reproducible X4 Pro build.
+2. Verify boot, display, touch, storage, USB, Wi-Fi, sleep/wake, and recovery on real hardware.
+3. Separate Paperonii identity, configuration, release artifacts, and documentation from upstream CrossPoint.
+4. Add minimal smoke tests and a repeatable release checklist.
+5. Ship one small representative application to validate the direction beyond reading.
 
-* To maintain long-term interest from contributors and maintainers, in direct response to substantial community requests for a way to give back. 
-* To motivate contributors to invest in the *core* project rather than spinning up competing forks. 
-* To help pay for new ESP32 devices so we can port CrossPoint to additional hardware. 
-* To give the project a credible long-term path to sustainability.
+The representative application is a simple **touch sketch pad**. It is intentionally small, but it exercises app entry/exit, touch input, e-ink refresh behavior, local persistence, and separation from the reader core. It is a foundation test, not a promise that note-taking will be the project's dominant feature.
 
-**How it works:**
+See [ROADMAP.md](ROADMAP.md) for milestone details and exit criteria.
 
-* Funds are distributed automatically to contributors based on impact to the codebase and tenure on the project. 
-* Over **$600** was raised in the first few hours after opening up funding, which is a signal the demand is real. 
-* The exact scoring methodology is published at <https://app.royalty.dev/transparency>.
+## 6. Proposal and Acceptance Guidelines
 
-**This is not fixed in stone.** The weighting, eligibility, and distribution rules can be tweaked as we learn what works for this project. If you have concerns or suggestions about how funds are allocated, open a Discussion. The goal is a system that fairly recognizes the people doing the work, not a perfect one on day one.
+A proposal should answer:
+
+- What X4 Pro use case does this enable?
+- Is it stable, experimental, or a feasibility study?
+- What are its flash, RAM, storage, refresh, and battery costs?
+- How is it isolated from the reader core?
+- How will it be tested on real hardware?
+- What happens when storage, network access, or power is unavailable?
+
+Large features should begin with an issue or design note. Experimental features may land behind a build option or explicit experimental label while their constraints are still being understood.
+
+## 7. Upstream, Copyright, and License
+
+Paperonii began from CrossPoint Reader commit [`3f874f8472280398c3d1900ab66450583c101e7a`](https://github.com/crosspoint-reader/crosspoint-reader/commit/3f874f8472280398c3d1900ab66450583c101e7a), with the submodule versions recorded by that commit.
+
+The original MIT license and copyright notice in [LICENSE](LICENSE) are retained. Copyright notices and license terms belonging to included submodules and third-party components must also remain intact. Paperonii's independent Git history and broader scope do not imply that the imported source was newly authored by Paperonii contributors.
+
+Where useful, changes from CrossPoint may be reviewed and selectively adapted with attribution. Paperonii is independently maintained and is not endorsed by or affiliated with CrossPoint Reader or Xteink.
